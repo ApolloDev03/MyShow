@@ -1,4 +1,13 @@
 // app/(auth)/user/login/page.tsx
 export default function AdminLoginPage() {
-  return <h1>User Login</h1>;
+  return (
+
+  
+  <>
+<section className="min-h-screen text-center bg-gradient-to-r from-primary to-secondary text-white">
+  <h1>User Login</h1>
+</section>
+
+  </>
+  )
 }
