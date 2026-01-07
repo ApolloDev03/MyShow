@@ -4,7 +4,7 @@ export default function AdminLoginPage() {
 
   
   <>
-<section className="min-h-screen text-center bg-gradient-to-r from-primary to-secondary text-white">
+<section className="min-h-screen text-center bg-gradient-to-r from-primary to-secondary text-black">
   <h1>User Login</h1>
 </section>
 
