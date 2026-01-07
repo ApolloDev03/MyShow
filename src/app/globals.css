@@ -4,18 +4,18 @@
 @theme {
   --color-primary: #3D9970;     /* Burnt Orange */
   --color-secondary: #bfa893;   /* Yarrow Gold */
-  --color-background: #e0dede;  /* Creamy Beige */
+  --color-background: #f7f7f8;  /* Creamy Beige */
   --color-foreground: #2f2f2f;  /* Graphite */
 }
 
 /* Base app styling */
 @layer base {
   body {
-    @apply bg-background text-foreground;
+    @apply  text-foreground;
   }
 
-  a {
-    @apply text-primary hover:text-secondary;
+  a{
+   @apply text-white hover:text-primary
   }
 }
 
