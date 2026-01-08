@@ -1,175 +1,225 @@
 "use client";
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
 
-export default function EventDetailPage() {
-  const [attending, setAttending] = useState(false);
+import { useEffect, useRef, useState } from "react";
+import photo1 from "@/app/assets/event-1.avif";
+import photo2 from "@/app/assets/events-2.avif";
+import photo3 from "@/app/assets/events-3.avif";
+import photo4 from "@/app/assets/first-article.webp";
+import photo5 from "@/app/assets/second-article.webp";
+import photo6 from "@/app/assets/third-article.webp";
+import Image from "next/image";
+
+
+const tags = [
+  "Events in Ahmedabad, IN",
+  "Network Security",
+  "Amazon Web Services",
+  "Cloud Computing",
+  "Professional Networking",
+];
+
+const attendees = [
+  { name: "Kelvi Manavadaria", role: "Member" },
+  { name: "dimple vaghela", role: "Co-organizer" },
+  { name: "Nilesh Vaghela", role: "Organizer" },
+];
+
+const relatedEvents = [
+  {
+    title: "HashiCorp Meetup – January Edition",
+    date: "Sun, Jan 25 · 10:00 AM IST",
+    group: "Ahmedabad HashiCorp User Group",
+  },
+  {
+    title: "Meet Magento India 2026",
+    date: "Sun, Jan 25 · 7:00 AM IST",
+    group: "Meet Magento India",
+  },
+  {
+    title: "Primewise Founders Club VC Connect",
+    date: "Sat, Jan 17 · 12:00 PM IST",
+    group: "Primewise Founders Club",
+  },
+];
+
+export default function EventPage() {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [showBottomBar, setShowBottomBar] = useState(false);
+
+  const [showAllPhotos, setShowAllPhotos] = useState(false);
+  const photos = [
+    photo1,
+    photo2,
+    photo3,
+    photo4,
+    photo5,
+    photo6,
+  ];
+
+
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowBottomBar(!entry.isIntersecting);
+      },
+      { threshold: 0 }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <main className="relative min-h-screen bg-white text-foreground">
-      {/* Cover Section */}
-      <section className="relative w-full bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-10 md:py-16">
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-8">
-            {/* Left Column */}
-            <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-foreground leading-tight">
-                FuckUp Night: Startup Failure Stories (Open Mic)
-              </h1>
+    <>
+      {/* MAIN GRID */}
+      <section
+        ref={sectionRef}
+        className="max-w-7xl mx-auto px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8"
+      >
+        {/* LEFT CONTENT */}
+        <div className="lg:col-span-2 space-y-10">
+          <div className="space-y-3">
+            <h1 className="text-2xl lg:text-3xl font-bold">
+              AWS re:Invent 2025 Recap – Community Expert Edition
+            </h1>
+            <p className="text-sm text-gray-600">
+              Hosted by <span className="font-medium">Nilesh V.</span> and 2 others
+            </p>
 
-              <p className="mt-2 text-foreground/70 font-medium">
-                Hosted by <Link href="#" className="text-primary hover:underline">Solopreneurs L.</Link>
+            <Image src={photo5} width={0} height={0} className="w-full" alt="main" />
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">Details</h2>
+
+            <div className="space-y-4 text-sm text-gray-700">
+              <p>
+                Join us for an exclusive AWS re:Invent 2025 Recap session where
+                our community experts will share the most exciting announcements,
+                innovations, and insights from the world’s premier cloud
+                computing conference.
               </p>
 
-              <div className="mt-6 relative aspect-video w-full overflow-hidden rounded-2xl border bg-gray-100">
-                <Image
-                  src="/demo/event-1.jpg"
-                  alt="Event banner"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-
-              {/* Description */}
-              <div className="mt-8 space-y-4 text-[15px] leading-relaxed text-foreground/80">
-                <p>
-                  Open mic for honest founder failures. No speakers list, no prep — take the live,
-                  share your story & chat with like-minded people who understand the pains of
-                  building a startup.
-                </p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>what went wrong & how we recovered</li>
-                  <li>speak if you want, listen if you prefer</li>
-                  <li>stay anonymous if you want</li>
-                </ul>
-
-                <p>
-                  Think of it as an informal startup therapy session focused on learning,
-                  reflection, and support.
-                </p>
-              </div>
-
-              
-
-              {/* Photos */}
-              <div className="mt-10">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-extrabold">Photos</h2>
-                  <Link href="#" className="text-primary text-sm hover:underline">
-                    See all
-                  </Link>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {["/demo/event-2.jpg", "/demo/event-3.jpg"].map((photo, idx) => (
-                    <div key={idx} className="relative aspect-[4/3] overflow-hidden rounded-xl">
-                      <Image src={photo} alt="" fill className="object-cover" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Similar Events */}
-              <div className="mt-12 border-t pt-8">
-                <h2 className="text-xl font-extrabold mb-5">Members are also interested in</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {[1, 2, 3].map((i) => (
-                    <Link
-                      key={i}
-                      href="#"
-                      className="group block rounded-2xl border bg-white p-3 hover:shadow-md transition"
-                    >
-                      <div className="relative aspect-[16/9] rounded-xl overflow-hidden">
-                        <Image
-                          src={`/demo/event-${i}.jpg`}
-                          alt="event"
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
-                      <div className="mt-3">
-                        <p className="text-sm font-semibold text-foreground group-hover:text-primary">
-                          Example Event {i}
-                        </p>
-                        <p className="text-xs text-foreground/60">Online</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+              <ul className="space-y-1">
+                <li><strong>Date:</strong> Saturday, January 24th, 2026</li>
+                <li><strong>Time:</strong> 9:30 AM – 1:00 PM IST</li>
+                <li><strong>Format:</strong> In-person community meetup</li>
+                <li><strong>Audience:</strong> AWS enthusiasts, developers, architects</li>
+              </ul>
             </div>
 
-            {/* Right Column (Sticky Card) */}
-            <div className="space-y-5">
-              <div className="rounded-2xl border bg-white p-4 shadow-sm sticky top-6">
-                <div className="relative aspect-[16/9] overflow-hidden rounded-xl">
-                  <Image
-                    src="/demo/event-1.jpg"
-                    alt="Event"
-                    fill
-                    className="object-cover"
-                  />
+            <div className="flex flex-wrap gap-2">
+              {tags.map(tag => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 text-xs rounded-full border bg-gray-50"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="font-semibold text-sm">Tech Holding</h3>
+            <p className="text-sm text-gray-600">
+              11th Floor, The Ridge, Iscon, Opp. Wide Angle · Ahmedabad
+            </p>
+
+            <div className="h-56 bg-gray-100 rounded-xl flex items-center justify-center text-xs text-gray-500">
+              Google Map Embed
+            </div>
+          </div>
+
+          {/* PHOTOS */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold">Photos</h3>
+
+              <button
+                onClick={() => setShowAllPhotos(prev => !prev)}
+                className="text-sm text-blue-600"
+              >
+                {showAllPhotos ? "Show less" : "See all"}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2">
+              {(showAllPhotos ? photos : photos.slice(0, 4)).map((src, index) => (
+                <img
+                  key={index}
+                  src={src.src}
+                  alt={`Event photo ${index + 1}`}
+                  className="aspect-square rounded-lg"
+                />
+              ))}
+            </div>
+          </div>
+
+
+
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="font-semibold">Members are also interested in</h3>
+              <span className="text-sm text-blue-600 cursor-pointer">See all</span>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-4">
+              {relatedEvents.map(event => (
+                <div
+                  key={event.title}
+                  className="border rounded-xl p-3 space-y-2"
+                >
+                  <div className="h-28 bg-gray-200 rounded-lg" />
+                  <p className="text-xs text-gray-500">{event.date}</p>
+                  <p className="text-sm font-semibold">{event.title}</p>
+                  <p className="text-xs text-gray-500">{event.group}</p>
                 </div>
-
-                <div className="mt-4">
-                  <p className="text-sm text-foreground/70 font-medium">Online event</p>
-                  <h3 className="text-base font-extrabold text-foreground">
-                    FuckUp Night: Startup Failure Stories (Open Mic)
-                  </h3>
-
-                  <p className="mt-2 text-sm text-foreground/60">
-                    Wed, Jan 7 · 8:30 PM IST
-                  </p>
-
-                  <div className="mt-4 flex items-center gap-2">
-                    <span className="rounded-full border border-gray-300 px-3 py-1 text-xs font-semibold">
-                      Free
-                    </span>
-                    <button
-                      onClick={() => setAttending(!attending)}
-                      className={`flex-1 rounded-full ${
-                        attending
-                          ? "bg-gray-200 text-foreground"
-                          : "bg-primary text-white"
-                      } font-semibold text-sm py-2.5 transition hover:opacity-90`}
-                    >
-                      {attending ? "Attending" : "Attend online"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              
+              ))}
             </div>
           </div>
         </div>
+
+        {/* RIGHT SIDEBAR */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-24 space-y-4">
+            <div className="border rounded-xl p-4 space-y-2">
+              <p className="text-sm font-medium">Reservation opens</p>
+              <p className="text-sm text-gray-600">Sat, Jan 3 · 8:00 PM</p>
+              <hr/>
+              <p className="text-sm font-medium">
+                Saturday, Jan 24 · 9:30 AM – 1:00 PM IST
+              </p>
+              <p className="text-sm text-gray-600">Tech Holding</p>
+            </div>
+          </div>
+        </aside>
       </section>
 
-      {/* Sticky Bottom Bar */}
-      <div className="sticky bottom-0 left-0 right-0 bg-white border-t shadow-md px-4 py-3 md:hidden flex items-center justify-between">
-        <div className="flex flex-col">
-          <p className="text-xs text-foreground/60">Wed, Jan 7 · 8:30 PM IST</p>
-          <p className="text-sm font-semibold text-foreground truncate w-[180px]">
-            FuckUp Night: Startup Failure Stories
-          </p>
+      {/* SECTION-BASED BOTTOM BAR */}
+      {showBottomBar && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-3 z-50">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">
+                AWS re:Invent 2025 Recap – Community Expert Edition
+              </p>
+              <p className="text-xs text-gray-500">
+                Sat, Jan 24 · 9:30 AM IST
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-xs px-2 py-1 border rounded-full">FREE</span>
+              <button className="bg-black text-white px-6 py-2 rounded-full text-sm font-medium">
+                Attend
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="rounded-full border border-gray-300 px-3 py-1 text-xs font-semibold">
-            Free
-          </span>
-          <button
-            onClick={() => setAttending(!attending)}
-            className={`rounded-full ${
-              attending
-                ? "bg-gray-200 text-foreground"
-                : "bg-primary text-white"
-            } font-semibold text-sm px-4 py-2 transition`}
-          >
-            {attending ? "Attending" : "Attend online"}
-          </button>
-        </div>
-      </div>
-    </main>
+      )}
+    </>
   );
 }
