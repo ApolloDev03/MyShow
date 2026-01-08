@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FiLogOut, FiCheckCircle, FiX } from "react-icons/fi";
+import { FiLogOut } from "react-icons/fi";
 
 export default function SuperAdminLogoutPage() {
     const [toastOpen, setToastOpen] = useState(true);
@@ -23,8 +23,6 @@ export default function SuperAdminLogoutPage() {
 
     return (
         <section className="min-h-screen bg-linear-to-br from-primary to-secondary text-black flex items-center justify-center px-4 py-10 relative">
-
-
 
             {/* Card */}
             <div className="w-full max-w-md rounded-2xl bg-white/90 backdrop-blur p-6 sm:p-8 shadow-lg">

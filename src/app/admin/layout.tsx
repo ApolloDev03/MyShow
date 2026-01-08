@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AdminFooter from "../components/AdminFooter";
 import AdminHeader from "../components/AdminHeader";
+import RoleGuard from "../components/RoleGuard";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [hasToken, setHasToken] = useState<boolean | null>(null);
@@ -26,9 +27,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     return (
         <>
-            <AdminHeader />
-            <main>{children}</main>
-            <AdminFooter />
+            <RoleGuard roleRequired="admin">
+                <AdminHeader />
+                <main>{children}</main>
+                <AdminFooter />
+            </RoleGuard>
         </>
     );
 }

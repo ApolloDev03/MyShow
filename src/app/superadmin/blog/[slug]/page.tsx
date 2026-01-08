@@ -1,11 +1,10 @@
-// app/superadmin/master/blog/add/page.tsx
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { FiArrowLeft, FiSave, FiImage } from "react-icons/fi";
-import { addBlog } from "../../../context/blogStore";
+import { addBlog, loadBlogs, updateBlog, type BlogItem } from "../../../context/blogStore";
 
 const inputCls =
     "w-full rounded-xl border border-black/15 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-primary";
@@ -24,8 +23,16 @@ type Draft = {
     focusKeyword: string;
 };
 
-export default function AddBlogPage() {
+export default function BlogAddEditPage() {
     const router = useRouter();
+    const params = useParams<{ slug: string }>();
+    const slug = params?.slug;
+
+    const isAdd = slug === "add";
+    const blogId = isAdd ? "" : slug;
+
+    const [loading, setLoading] = useState(!isAdd);
+    const [notFound, setNotFound] = useState(false);
 
     const [draft, setDraft] = useState<Draft>({
         title: "",
@@ -42,6 +49,35 @@ export default function AddBlogPage() {
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState("");
 
+    // Load blog for edit mode
+    useEffect(() => {
+        if (isAdd) return;
+
+        const all = loadBlogs();
+        const found = all.find((b) => b.id === blogId);
+
+        if (!found) {
+            setNotFound(true);
+            setLoading(false);
+            return;
+        }
+
+        setDraft({
+            title: found.title || "",
+            photoUrl: found.photoUrl || "",
+            description: found.description || "",
+            metaTitle: found.metaTitle || "",
+            metaKeywords: found.metaKeywords || "",
+            metaDescription: found.metaDescription || "",
+            seoHead: found.seoHead || "",
+            seoBody: found.seoBody || "",
+            focusKeyword: found.focusKeyword || "",
+        });
+
+        setLoading(false);
+    }, [isAdd, blogId]);
+
+    // Preview photo
     useEffect(() => {
         if (!photoFile) {
             setPhotoPreview("");
@@ -65,42 +101,92 @@ export default function AddBlogPage() {
         );
     }, [draft]);
 
-    const onSave = () => {
+    const onSubmit = () => {
         if (!draft.title.trim()) return alert("Please enter Title");
         if (!draft.description.trim()) return alert("Please enter Description");
         if (!draft.metaTitle.trim()) return alert("Please enter Meta Title");
         if (!draft.metaDescription.trim()) return alert("Please enter Meta Description");
 
-        addBlog({
-            title: draft.title,
-            photoUrl: draft.photoUrl,
-            description: draft.description,
-            metaTitle: draft.metaTitle,
-            metaKeywords: draft.metaKeywords,
-            metaDescription: draft.metaDescription,
-            seoHead: draft.seoHead,
-            seoBody: draft.seoBody,
-            focusKeyword: draft.focusKeyword,
-        });
+        if (isAdd) {
+            addBlog({
+                title: draft.title,
+                photoUrl: draft.photoUrl,
+                description: draft.description,
+                metaTitle: draft.metaTitle,
+                metaKeywords: draft.metaKeywords,
+                metaDescription: draft.metaDescription,
+                seoHead: draft.seoHead,
+                seoBody: draft.seoBody,
+                focusKeyword: draft.focusKeyword,
+            });
+        } else {
+            // Update
+            updateBlog(blogId, {
+                title: draft.title,
+                photoUrl: draft.photoUrl,
+                description: draft.description,
+                metaTitle: draft.metaTitle,
+                metaKeywords: draft.metaKeywords,
+                metaDescription: draft.metaDescription,
+                seoHead: draft.seoHead,
+                seoBody: draft.seoBody,
+                focusKeyword: draft.focusKeyword,
+            });
+        }
 
         router.push("/superadmin/blog");
     };
 
     const shownPhoto = photoPreview || draft.photoUrl;
 
+    if (loading) {
+        return (
+            <main className="min-h-screen bg-[#f6f7fb] text-black">
+                <div className="mx-auto w-full max-w-5xl px-4 py-8">
+                    <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+                        <p className="text-sm text-black/60">Loading...</p>
+                    </div>
+                </div>
+            </main>
+        );
+    }
+
+    if (notFound) {
+        return (
+            <main className="min-h-screen bg-[#f6f7fb] text-black">
+                <div className="mx-auto w-full max-w-5xl px-4 py-8">
+                    <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+                        <p className="text-sm font-semibold">Blog not found.</p>
+                        <Link
+                            href="/superadmin/blog"
+                            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-black/10 bg-white px-5 py-3 text-sm font-semibold hover:bg-black/5"
+                        >
+                            <FiArrowLeft />
+                            Back
+                        </Link>
+                    </div>
+                </div>
+            </main>
+        );
+    }
+
     return (
         <main className="min-h-screen bg-[#f6f7fb] text-black">
             <div className="mx-auto w-full max-w-5xl px-4 py-8">
-                {/* Card */}
                 <section className="rounded-2xl border border-black/10 bg-white shadow-sm overflow-hidden">
                     {/* Header */}
                     <div className="p-5 flex justify-between items-center border-b border-black/10">
                         <div>
-                            <h1 className="text-2xl font-semibold tracking-tight">Add Blog</h1>
+                            <h1 className="text-2xl font-semibold tracking-tight">
+                                {isAdd ? "Add Blog" : "Edit Blog"}
+                            </h1>
                             <p className="mt-1 text-sm text-black/60">
-                                Create blog with title, photo, description and SEO.
+                                {isAdd
+                                    ? "Create blog with title, photo, description and SEO."
+                                    : "Update blog details and SEO fields."}
                             </p>
                         </div>
+
                         <Link
                             href="/superadmin/blog"
                             className="inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-white px-5 py-3 text-sm font-semibold hover:bg-black/5"
@@ -108,14 +194,13 @@ export default function AddBlogPage() {
                             <FiArrowLeft />
                             Back
                         </Link>
-
                     </div>
 
                     {/* FORM */}
                     <form
                         onSubmit={(e) => {
                             e.preventDefault();
-                            onSave();
+                            onSubmit();
                         }}
                         className="p-5"
                     >
@@ -138,7 +223,9 @@ export default function AddBlogPage() {
                                                 <FiImage className="text-xl" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-semibold">Upload blog photo</p>
+                                                <p className="text-sm font-semibold">
+                                                    {isAdd ? "Upload blog photo" : "Change blog photo"}
+                                                </p>
                                                 <p className={helperCls}>Click to choose (optional)</p>
                                             </div>
                                         </div>
@@ -273,16 +360,15 @@ export default function AddBlogPage() {
                             </div>
                         </div>
 
-                        {/* FOOTER BUTTONS (LAST) */}
+                        {/* FOOTER BUTTONS */}
                         <div className="mt-6 flex flex-col gap-3 border-t border-black/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
-
                             <button
                                 type="submit"
                                 disabled={!canSave}
                                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                                 <FiSave />
-                                Save Blog
+                                {isAdd ? "Save Blog" : "Update Blog"}
                             </button>
                         </div>
                     </form>
