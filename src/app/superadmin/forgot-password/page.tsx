@@ -102,7 +102,7 @@ export default function SuperAdminForgotPasswordPage() {
                                 We sent a password reset link to:
                             </p>
 
-                            <p className="mt-2 rounded-xl border border-black/10 bg-black/[0.02] px-4 py-2 text-sm font-semibold">
+                            <p className="mt-2 rounded-xl border border-black/10 bg-black/2  px-4 py-2 text-sm font-semibold">
                                 {email}
                             </p>
 

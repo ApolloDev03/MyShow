@@ -39,7 +39,7 @@ export default function SuperAdminProfilePage() {
           <div className="p-6 sm:p-10">
             {/* Top avatar */}
             <div className="flex flex-col items-center text-center">
-              <div className="h-28 w-28 overflow-hidden rounded-full border border-black/10 bg-black/[0.03] flex items-center justify-center">
+              <div className="h-28 w-28 overflow-hidden rounded-full border border-black/10 bg-black/3 flex items-center justify-center">
                 {profile.photoUrl ? (
                   <img
                     src={profile.photoUrl}

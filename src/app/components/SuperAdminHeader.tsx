@@ -1,9 +1,9 @@
-// // components/SuperAdminHeader.tsx (or app/admin/_components/SuperAdminHeader.tsx)
 // "use client";
 
 // import Link from "next/link";
 // import { usePathname, useRouter } from "next/navigation";
 // import { useEffect, useMemo, useRef, useState } from "react";
+// import type { ReactNode } from "react";
 // import {
 //   FiChevronDown,
 //   FiMenu,
@@ -17,7 +17,7 @@
 //   FiStar,
 // } from "react-icons/fi";
 
-// type MasterItem = { label: string; href: string; icon?: React.ReactNode };
+// type MasterItem = { label: string; href: string; icon?: ReactNode };
 
 // export default function SuperAdminHeader() {
 //   const pathname = usePathname();
@@ -32,9 +32,9 @@
 
 //   const masterItems: MasterItem[] = useMemo(
 //     () => [
-//       { label: "City Master", href: "/admin/master/city", icon: <FiMapPin /> },
-//       { label: "Blog Master", href: "/admin/master/blog", icon: <FiFileText /> },
-//       { label: "Testimonial Master", href: "/admin/master/testimonial", icon: <FiStar /> },
+//       { label: "City Master", href: "/superadmin/city", icon: <FiMapPin /> },
+//       { label: "Blog Master", href: "/superadmin/blog", icon: <FiFileText /> },
+//       { label: "Testimonial Master", href: "/superadmin/testimonial", icon: <FiStar /> },
 //     ],
 //     []
 //   );
@@ -45,6 +45,7 @@
 //       if (masterRef.current && !masterRef.current.contains(t)) setMasterOpen(false);
 //       if (profileRef.current && !profileRef.current.contains(t)) setProfileOpen(false);
 //     };
+
 //     const onEsc = (e: KeyboardEvent) => {
 //       if (e.key === "Escape") {
 //         setMasterOpen(false);
@@ -70,7 +71,6 @@
 //     ].join(" ");
 
 //   const logout = () => {
-//     // optional: clear tokens here
 //     try {
 //       localStorage.removeItem("token");
 //       localStorage.removeItem("adminToken");
@@ -96,7 +96,7 @@
 //           </button>
 
 //           {/* Brand */}
-//           <Link href="/admin/dashboard" className="flex items-center gap-2">
+//           <Link href="/superadmin/dashboard" className="flex items-center gap-2">
 //             <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-lg font-bold">
 //               m
 //             </span>
@@ -105,12 +105,12 @@
 
 //           {/* Desktop Nav */}
 //           <nav className="ml-2 hidden items-center gap-1 lg:flex">
-//             <Link href="/admin/events" className={linkCls(isActive("/admin/events"))}>
+//             <Link href="/superadmin/events" className={linkCls(isActive("/superadmin/events"))}>
 //               <FiCalendar />
 //               Events
 //             </Link>
 
-//             <Link href="/admin/group-members" className={linkCls(isActive("/admin/group-members"))}>
+//             <Link href="/superadmin/groups" className={linkCls(isActive("/superadmin/groups"))}>
 //               <FiUsers />
 //               Groups
 //             </Link>
@@ -192,7 +192,7 @@
 
 //               <div className="p-2">
 //                 <Link
-//                   href="/admin/profile"
+//                   href="/superadmin/profile"
 //                   onClick={() => setProfileOpen(false)}
 //                   className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-black/70 hover:bg-black/5 hover:text-black"
 //                 >
@@ -205,6 +205,7 @@
 //                   onClick={() => {
 //                     setProfileOpen(false);
 //                     logout();
+//                     router.push("/superadmin/logout");
 //                   }}
 //                   className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50"
 //                 >
@@ -273,11 +274,10 @@
 //                 </div>
 //               ) : null}
 
-//               <span className="text-lg font-semibold text-primary">Welcome SuperAdmin</span>
 //               <Link
-//                 href="/admin/profile"
+//                 href="/superadmin/profile"
 //                 onClick={() => setMobileOpen(false)}
-//                 className={linkCls(isActive("/admin/profile"))}
+//                 className={linkCls(isActive("/superadmin/profile"))}
 //               >
 //                 <FiUser />
 //                 Profile
@@ -303,13 +303,13 @@
 // }
 
 
-// components/SuperAdminHeader.tsx (or app/admin/_components/SuperAdminHeader.tsx)
 "use client";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import axios from "axios";
 import {
   FiChevronDown,
   FiMenu,
@@ -325,6 +325,49 @@ import {
 
 type MasterItem = { label: string; href: string; icon?: ReactNode };
 
+type LogoutResponse = {
+  status?: string | boolean | number;
+  message?: string;
+  data?: any;
+};
+
+const API_BASE = "https://getdemo.in/My_show/api";
+
+const api = axios.create({
+  baseURL: API_BASE,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
+
+function isSuccess(data?: LogoutResponse) {
+  const s = data?.status;
+  return s === "success" || s === true || s === 1 || s === "1" || s === "true";
+}
+
+function getToken() {
+  if (typeof window === "undefined") return "";
+  return (
+    localStorage.getItem("superadminToken") || // ✅ your superadmin token key
+    localStorage.getItem("token") || // fallback if you used this somewhere
+    ""
+  );
+}
+
+function clearAuthStorage() {
+  try {
+    localStorage.removeItem("superadminToken");
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
+    localStorage.removeItem("adminUser");
+    localStorage.removeItem("superadminUser");
+  } catch { }
+}
+
 export default function SuperAdminHeader() {
   const pathname = usePathname();
   const router = useRouter();
@@ -332,6 +375,7 @@ export default function SuperAdminHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [masterOpen, setMasterOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
   const masterRef = useRef<HTMLDivElement | null>(null);
   const profileRef = useRef<HTMLDivElement | null>(null);
@@ -376,13 +420,45 @@ export default function SuperAdminHeader() {
       active ? "bg-primary/10 text-primary" : "text-black/70 hover:bg-black/5 hover:text-black",
     ].join(" ");
 
-  const logout = () => {
+  // ✅ API logout call
+  const logout = async () => {
+    if (logoutLoading) return;
+
+    setLogoutLoading(true);
+    setProfileOpen(false);
+    setMasterOpen(false);
+    setMobileOpen(false);
+
+    const token = getToken();
+
     try {
-      localStorage.removeItem("token");
-      localStorage.removeItem("adminToken");
-      localStorage.removeItem("user");
-    } catch { }
-    router.push("/admin/logout");
+      const res = await api.post<LogoutResponse>(
+        "/v1/logout",
+        {}, // request body empty
+        {
+          validateStatus: () => true,
+          headers: token
+            ? {
+              Authorization: `Bearer ${token}`, // most common
+              token, // extra safety if backend reads token header
+            }
+            : undefined,
+        }
+      );
+
+      // even if API fails, we still clear local session (safe logout)
+      if (!isSuccess(res.data)) {
+        // optional: console.warn(res.data?.message || "Logout failed");
+      }
+    } catch {
+      // ignore network errors; still clear local session
+    } finally {
+      clearAuthStorage();
+      setLogoutLoading(false);
+
+      // ✅ go to superadmin login page (your route is /user/login)
+      router.push("/superadmin/login");
+    }
   };
 
   return (
@@ -402,7 +478,7 @@ export default function SuperAdminHeader() {
           </button>
 
           {/* Brand */}
-          <Link href="/admin/dashboard" className="flex items-center gap-2">
+          <Link href="/superadmin/dashboard" className="flex items-center gap-2">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-lg font-bold">
               m
             </span>
@@ -411,12 +487,12 @@ export default function SuperAdminHeader() {
 
           {/* Desktop Nav */}
           <nav className="ml-2 hidden items-center gap-1 lg:flex">
-            <Link href="/admin/events" className={linkCls(isActive("/admin/events"))}>
+            <Link href="/superadmin/events" className={linkCls(isActive("/superadmin/events"))}>
               <FiCalendar />
               Events
             </Link>
 
-            <Link href="/admin/group-members" className={linkCls(isActive("/admin/group-members"))}>
+            <Link href="/superadmin/groups" className={linkCls(isActive("/superadmin/groups"))}>
               <FiUsers />
               Groups
             </Link>
@@ -429,7 +505,7 @@ export default function SuperAdminHeader() {
                   setMasterOpen((s) => !s);
                   setProfileOpen(false);
                 }}
-                className={linkCls(isActive("/admin/master"))}
+                className={linkCls(isActive("/superadmin"))}
                 aria-haspopup="menu"
                 aria-expanded={masterOpen}
               >
@@ -508,15 +584,12 @@ export default function SuperAdminHeader() {
 
                 <button
                   type="button"
-                  onClick={() => {
-                    setProfileOpen(false);
-                    logout();
-                    router.push("/superadmin/logout");
-                  }}
-                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50"
+                  disabled={logoutLoading}
+                  onClick={logout}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <FiLogOut className="text-base" />
-                  Logout
+                  {logoutLoading ? "Logging out..." : "Logout"}
                 </button>
               </div>
             </div>
@@ -530,18 +603,18 @@ export default function SuperAdminHeader() {
           <div className="mx-auto w-full max-w-7xl px-4 py-3">
             <div className="flex flex-col gap-1">
               <Link
-                href="/admin/events"
+                href="/superadmin/events"
                 onClick={() => setMobileOpen(false)}
-                className={linkCls(isActive("/admin/events"))}
+                className={linkCls(isActive("/superadmin/events"))}
               >
                 <FiCalendar />
                 Events
               </Link>
 
               <Link
-                href="/admin/group-members"
+                href="/superadmin/groups"
                 onClick={() => setMobileOpen(false)}
-                className={linkCls(isActive("/admin/group-members"))}
+                className={linkCls(isActive("/superadmin/groups"))}
               >
                 <FiUsers />
                 Groups
@@ -550,7 +623,7 @@ export default function SuperAdminHeader() {
               <button
                 type="button"
                 onClick={() => setMasterOpen((s) => !s)}
-                className={linkCls(isActive("/admin/master"))}
+                className={linkCls(isActive("/superadmin"))}
               >
                 Master
                 <FiChevronDown className={`ml-auto transition ${masterOpen ? "rotate-180" : ""}`} />
@@ -591,14 +664,12 @@ export default function SuperAdminHeader() {
 
               <button
                 type="button"
-                onClick={() => {
-                  setMobileOpen(false);
-                  logout();
-                }}
-                className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                disabled={logoutLoading}
+                onClick={logout}
+                className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <FiLogOut />
-                Logout
+                {logoutLoading ? "Logging out..." : "Logout"}
               </button>
             </div>
           </div>
