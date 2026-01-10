@@ -2,7 +2,7 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaUsers, FaStar } from "react-icons/fa";
-import image1 from '@/app/assets/event-1.avif'
+import image1 from '@/app/assets/event-1.webp'
 import Link from "next/link";
 
 export default function EventDetail() {

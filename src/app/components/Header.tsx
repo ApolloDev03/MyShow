@@ -36,10 +36,10 @@ export default function Header() {
                       id="city"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="appearance-none bg-transparent text-sm outline-none text-foreground pr-6 cursor-pointer"
+                      className="appearance-none bg-white  rounded-full pl-4 pr-10 py-2 text-sm text-gray-800 cursor-pointer focus:outline-none  "
                     >
                       {cities.map((c) => (
-                        <option key={c} value={c}>
+                        <option className="px-3" key={c} value={c}>
                           {c}
                         </option>
                       ))}
