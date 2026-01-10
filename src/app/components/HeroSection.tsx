@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-import banner from '@/app/assets/hero.avif'
+import banner from '@/app/assets/hero.webp'
 
 export default function Hero() {
   return (
