@@ -1,7 +1,13 @@
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
 import Button from "./Button";
 
 export default function Header() {
+  const [city, setCity] = useState("Ahmedabad");
+  const cities = ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Gandhinagar"];
+
   return (
     <header className="w-full bg-white border-b">
       <div className="mx-auto max-w-7xl px-4 py-2">
@@ -15,9 +21,49 @@ export default function Header() {
           </Link>
 
           {/* Center: Search */}
-          <div className=" flex justify-center">
+          <div className="flex justify-center">
             <div className="w-full max-w-2xl">
               <div className="flex items-center rounded-full border bg-white shadow-sm px-3 py-2 focus-within:ring-2 focus-within:ring-primary/30">
+                {/* City dropdown */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <LocationIcon className="h-4 w-4 text-foreground/60" />
+                  <label className="sr-only" htmlFor="city">
+                    City
+                  </label>
+
+                  <div className="relative">
+                    <select
+                      id="city"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="appearance-none bg-transparent text-sm outline-none text-foreground pr-6 cursor-pointer"
+                    >
+                      {cities.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* dropdown chevron */}
+                    <svg
+                      className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/50"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="mx-3 h-6 w-px bg-gray-200" />
+
                 {/* Search input */}
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <SearchIcon className="h-4 w-4 text-foreground/60" />
@@ -48,15 +94,12 @@ export default function Header() {
           <div className="flex items-center gap-6 shrink-0">
             <Link
               href="/admin/login"
-              className="text-md font-medium text-foreground p-3  hover:border hover:p-3 hover:rounded-3xl hover:bg-[#f2f0f0]"
+              className="text-md font-medium text-foreground p-3 hover:border hover:rounded-3xl hover:bg-[#f2f0f0]"
             >
               Log in
             </Link>
 
-            <Link
-              href="/admin/register"
-              className=""
-            >
+            <Link href="/admin/register">
               <Button />
             </Link>
           </div>
@@ -97,36 +140,6 @@ function LocationIcon({ className }: { className?: string }) {
         d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
         stroke="currentColor"
         strokeWidth="2"
-      />
-    </svg>
-  );
-}
-
-function GlobeIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
-      <path
-        d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <path
-        d="M2 12h20"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M12 2c3 3 3 17 0 20"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M12 2c-3 3-3 17 0 20"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
       />
     </svg>
   );
