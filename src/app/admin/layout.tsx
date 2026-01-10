@@ -11,26 +11,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     useEffect(() => {
         // run on client only
         if (typeof window !== "undefined") {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("adminToken");
             setHasToken(!!token); // true if token exists
         }
     }, []);
 
-    // while checking token, avoid flicker
-    if (hasToken === null) {
-        return (
-            <main className="flex min-h-screen items-center justify-center">
-                <p className="text-gray-500 text-sm">Loading...</p>
-            </main>
-        );
-    }
+
 
     return (
         <>
             <RoleGuard roleRequired="admin">
-                <AdminHeader />
+                {hasToken && <AdminHeader />}
                 <main>{children}</main>
-                <AdminFooter />
+                {hasToken && <AdminFooter />}
             </RoleGuard>
         </>
     );
