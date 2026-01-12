@@ -1,14 +1,12 @@
-@import "tailwindcss";
+/* @import "tailwindcss";
 
-/* Tailwind v4 theme tokens */
 @theme {
-  --color-primary: #3D9970;     /* Burnt Orange */
-  --color-secondary: #bfa893;   /* Yarrow Gold */
-  --color-background: #f7f7f8;  /* Creamy Beige */
-  --color-foreground: #2f2f2f;  /* Graphite */
+  --color-primary: #3D9970;     
+  --color-secondary: #bfa893;  
+  --color-background: #f7f7f8;  
+  --color-foreground: #2f2f2f;  
 }
 
-/* Base app styling */
 @layer base {
   body {
     @apply  text-foreground;
@@ -19,7 +17,45 @@
   }
 }
 
-/* Optional: ready-to-use button styles */
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white px-4 py-2 rounded-md hover:opacity-90;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white px-4 py-2 rounded-md hover:opacity-90;
+  }
+
+  .btn-outline {
+    @apply border border-primary text-primary px-4 py-2 rounded-md hover:bg-primary hover:text-white;
+  }
+} */
+
+@import "tailwindcss";
+
+/* Tailwind v4 theme tokens */
+@theme {
+  --color-primary: #3d9970;
+  --color-secondary: #bfa893;
+  --color-background: #f7f7f8;
+  --color-foreground: #2f2f2f;
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  a {
+    @apply text-white hover:text-primary;
+  }
+}
+
 @layer components {
   .btn-primary {
     @apply bg-primary text-white px-4 py-2 rounded-md hover:opacity-90;

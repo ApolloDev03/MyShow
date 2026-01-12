@@ -307,6 +307,7 @@ export default function AdminHeader() {
                         : undefined,
                 }
             );
+            router.push("/admin/logout");
         } catch {
             // even if API fails, we still logout locally
         } finally {
@@ -323,7 +324,7 @@ export default function AdminHeader() {
             } catch { }
 
             setLogoutLoading(false);
-            router.push("/admin/login");
+            router.push("/admin/logout");
         }
     };
 

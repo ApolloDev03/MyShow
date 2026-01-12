@@ -2490,7 +2490,7 @@ export default function CreateEventPage() {
                 }
 
                 const res = await axios.post(
-                    `${apiUrl}/admin/group-members`,
+                    `${apiUrl}/v1/group-members`,
                     {},
                     {
                         headers: {
