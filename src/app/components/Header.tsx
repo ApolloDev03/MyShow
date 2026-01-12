@@ -9,7 +9,7 @@ export default function Header() {
   const cities = ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Gandhinagar"];
 
   return (
-    <header className="w-full bg-white border-b">
+    <header className="w-full bg-white">
       <div className="mx-auto max-w-7xl px-4 py-2">
         <div className="h-16 flex items-center justify-around gap-4">
           {/* Left: Brand */}

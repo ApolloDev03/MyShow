@@ -181,7 +181,7 @@ const KEYS = {
     adminToken: "adminToken",
     superToken: "superadminToken",
     role: "role",
-    user: "user",
+    // user: "user",
 
     // ✅ legacy keys (your old code)
     adminUser: "adminUser",
@@ -208,7 +208,7 @@ function readStorage() {
 
     // ✅ prefer "user", fallback to legacy role-based key
     const raw =
-        localStorage.getItem(KEYS.user) ||
+         
         (role === "admin" ? localStorage.getItem(KEYS.adminUser) : null) ||
         (role === "superadmin" ? localStorage.getItem(KEYS.superUser) : null);
 
@@ -236,13 +236,13 @@ function writeStorage(input: LoginInput) {
 
         if (input.user) {
             const userData = { ...input.user, role: input.role };
-            localStorage.setItem(KEYS.user, JSON.stringify(userData));
+            // localStorage.setItem(KEYS.user, JSON.stringify(userData));
 
             // ✅ legacy compatibility
             if (input.role === "admin") localStorage.setItem(KEYS.adminUser, JSON.stringify(userData));
             if (input.role === "superadmin") localStorage.setItem(KEYS.superUser, JSON.stringify(userData));
         } else {
-            localStorage.removeItem(KEYS.user);
+            // localStorage.removeItem(KEYS.user);
             localStorage.removeItem(KEYS.adminUser);
             localStorage.removeItem(KEYS.superUser);
         }
@@ -254,7 +254,7 @@ function clearStorage() {
         localStorage.removeItem(KEYS.adminToken);
         localStorage.removeItem(KEYS.superToken);
         localStorage.removeItem(KEYS.role);
-        localStorage.removeItem(KEYS.user);
+        // localStorage.removeItem(KEYS.user);
 
         // ✅ legacy
         localStorage.removeItem(KEYS.adminUser);

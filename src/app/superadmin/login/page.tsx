@@ -251,7 +251,7 @@ export default function SuperAdminLoginPage() {
                     );
                 } catch { }
 
-                router.push("/admin/dashboard");
+                router.push("/superadmin/dashboard");
                 return;
             }
 

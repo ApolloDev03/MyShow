@@ -434,7 +434,6 @@ export default function SuperAdminHeader() {
     try {
       const res = await api.post<LogoutResponse>(
         "/v1/logout",
-        {}, // request body empty
         {
           validateStatus: () => true,
           headers: token
