@@ -1,8 +1,8 @@
 import Image, {StaticImageData} from "next/image";
 import Link from "next/link";
 import { PiMicrophoneStageFill } from "react-icons/pi";
-import upcoming1 from '@/app/assets/upcoming1.avif'
-import upcoming2 from '@/app/assets/upcoming2.avif'
+import upcoming1 from '@/app/assets/upcoming1.webp'
+import upcoming2 from '@/app/assets/upcoming2.webp'
 
 type Event = {
   id: string;
