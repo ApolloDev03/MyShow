@@ -2275,6 +2275,7 @@
 
 import { apiUrl } from "@/config";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { IoArrowBack } from "react-icons/io5";
 
@@ -2308,6 +2309,7 @@ type GroupMember = {
 
 export default function CreateEventPage() {
     // Banner (single)
+    const router = useRouter();
     const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [bannerPreview, setBannerPreview] = useState<string>("");
 
@@ -2412,8 +2414,8 @@ export default function CreateEventPage() {
 
         if (isPaid) {
             if (!ticketPrice) return false;
-            if (paidMode === "online" && !onlineInfo) return false;
-            if (paidMode === "offline" && !offlineInfo) return false;
+            if (paidMode === "online") return false;
+            if (paidMode === "offline") return false;
         }
         return true;
     }, [
@@ -2576,7 +2578,7 @@ export default function CreateEventPage() {
 
             const token = getToken();
 
-            const res = await axios.post(`${apiUrl}/admin/group-events/store`, formData, {
+            const res = await axios.post(`${apiUrl}/v1/events/create`, formData, {
                 headers: {
                     Accept: "application/json",
                     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -2585,7 +2587,7 @@ export default function CreateEventPage() {
 
             if (res.data?.status) {
                 alert(`Event created successfully! event_id = ${res.data.event_id}`);
-
+                router.push(`/superadmin/events`);
                 // reset form
                 setTitle("");
                 setStartDate("");
