@@ -2,10 +2,10 @@
 "use client";
 
 import Image, { StaticImageData } from "next/image";
-import event1 from "@/app/assets/event-1.avif";
-import event2 from "@/app/assets/events-2.avif";
-import event3 from "@/app/assets/events-3.avif";
-import event4 from "@/app/assets/events-4.avif";
+import event1 from "@/app/assets/event-1.webp";
+import event2 from "@/app/assets/events-2.webp";
+import event3 from "@/app/assets/events-3.webp";
+import event4 from "@/app/assets/events-4.webp";
 import Link from "next/link";
 
 type EventCard = {
