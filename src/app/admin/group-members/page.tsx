@@ -2604,7 +2604,7 @@ export default function GroupMembersPage() {
 
             setDeletingId(id);
 
-            const res = await axios.post(`${apiUrl}/admin/group-members/${id}`, {}, authConfig());
+            const res = await axios.post(`${apiUrl}/admin/group-members/delete/${id}`, {}, authConfig());
 
             if (res.data?.status) {
                 // refresh list
