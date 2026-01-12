@@ -19,10 +19,39 @@ export default function EventDetail() {
 ];
 
 
+  // ✅ Members slider (add this)
+  const members = [
+    { name: "Aarav Patel", avatar: "https://i.pravatar.cc/150?img=12" },
+    { name: "Riya Shah", avatar: "https://i.pravatar.cc/150?img=32" },
+    { name: "Neel Mehta", avatar: "https://i.pravatar.cc/150?img=8" },
+    { name: "Isha Desai", avatar: "https://i.pravatar.cc/150?img=47" },
+    { name: "Kunal Joshi", avatar: "https://i.pravatar.cc/150?img=15" },
+    { name: "Priya Rao", avatar: "https://i.pravatar.cc/150?img=24" },
+    { name: "Manav Singh", avatar: "https://i.pravatar.cc/150?img=6" },
+    { name: "Anaya Verma", avatar: "https://i.pravatar.cc/150?img=39" },
+  ];
+
+  const MEMBERS_PER_PAGE = 5;
+  const [memberPage, setMemberPage] = useState(0);
+
+  const totalMemberPages = Math.max(1, Math.ceil(members.length / MEMBERS_PER_PAGE));
+  const visibleMembers = members.slice(
+    memberPage * MEMBERS_PER_PAGE,
+    memberPage * MEMBERS_PER_PAGE + MEMBERS_PER_PAGE
+  );
+
+  const handlePrevMembers = () =>
+    setMemberPage((p) => (p - 1 + totalMemberPages) % totalMemberPages);
+
+  const handleNextMembers = () =>
+    setMemberPage((p) => (p + 1) % totalMemberPages);
+
+
+
   const displayedImages = showAllImages ? images : images.slice(0, 4);
   return (
     <div className="bg-white text-gray-900">
-      <div className="mx-auto max-w-6xl space-y-10 px-4 py-12">
+      <div className="mx-auto max-w-7xl space-y-10 px-4 py-12">
         {/* Title */}
         <div>
           <h1 className="mb-2 text-4xl font-bold">
@@ -113,6 +142,55 @@ export default function EventDetail() {
                 ))}
               </div>
             </section>
+
+                        {/* Members Section (NEW) */}
+            <section>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Members</h2>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handlePrevMembers}
+                    className="rounded-full border px-3 py-1 text-sm font-semibold hover:bg-gray-50"
+                    aria-label="Previous members"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    onClick={handleNextMembers}
+                    className="rounded-full border px-3 py-1 text-sm font-semibold hover:bg-gray-50"
+                    aria-label="Next members"
+                  >
+                    ›
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+                {visibleMembers.map((m) => (
+                  <div
+                    key={m.name}
+                    className="flex flex-col items-center rounded-xl  bg-white p-3 text-center "
+                  >
+                    <img
+                      src={m.avatar}
+                      alt={m.name}
+                      className="h-14 w-14 rounded-full object-cover ring-2 ring-gray-100"
+                    />
+                    <p className="mt-2 text-sm font-semibold text-gray-900">
+                      {m.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {members.length > MEMBERS_PER_PAGE && (
+                <p className="mt-3 text-center text-xs text-gray-500">
+                  Page {memberPage + 1} of {totalMemberPages}
+                </p>
+              )}
+            </section>
+
           </div>
 
           {/* Right */}
@@ -153,28 +231,8 @@ export default function EventDetail() {
               </div>
             </div>
 
-
           </aside>
         </div>
-
-        {/* Members are also interested in */}
-        <section className="border-t pt-8">
-          <h2 className="mb-4 text-xl font-semibold">Members are also interested in</h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              { title: "HashiCorp Meetup - January Edition", date: "Sun, Jan 25 - 10:00 AM IST" },
-              { title: "Meet Magento India 2026", date: "Sun, Jan 25 - 7:00 AM IST" },
-              { title: "Primewise Founders Club VC Connect and Networking Event - Ahmedabad", date: "Sat, Jan 17 - 12:00 PM IST" },
-            ].map((e, i) => (
-              <div key={i} className="rounded-xl border p-4 transition hover:shadow-md">
-                <div className="mb-3 h-32 rounded-lg bg-gray-100" />
-                <p className="font-medium">{e.title}</p>
-                <p className="text-sm text-gray-600">{e.date}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
 
       </div>
     </div>
