@@ -17,7 +17,7 @@ const ROUTES = {
 };
 
 const ADMIN_PUBLIC = ["/admin/login", "/admin/register", "/admin/otp", "/admin/logout"];
-const SUPER_PUBLIC = ["/superadmin/login", "/superadmin/register", "/superadmin/otp", "/superadmin/logout"];
+const SUPER_PUBLIC = ["/superadmin/login", "/superadmin/logout"];
 
 function isPublicPage(pathname: string, roleRequired: Role) {
   const list = roleRequired === "admin" ? ADMIN_PUBLIC : SUPER_PUBLIC;

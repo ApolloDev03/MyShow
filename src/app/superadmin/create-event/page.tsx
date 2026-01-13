@@ -338,6 +338,12 @@ export default function CreateEventPage() {
             setError(err?.response?.data?.message || "Something went wrong.");
         }
     };
+    function getTodayLocalYYYYMMDD() {
+        const d = new Date();
+        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+        return d.toISOString().slice(0, 10);
+    }
+    const today = useMemo(() => getTodayLocalYYYYMMDD(), []);
 
     return (
         <main className="min-h-screen bg-[#f6f7fb] text-black">
@@ -346,7 +352,6 @@ export default function CreateEventPage() {
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex flex-col gap-1">
                         <h1 className="text-2xl font-semibold tracking-tight">Create Event</h1>
-                        <p className="text-sm text-black/60">Fill details and publish your show.</p>
                     </div>
                     <div>
                         <button
@@ -464,7 +469,6 @@ export default function CreateEventPage() {
                         {/* Basic details card */}
                         <div className="lg:col-span-7 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
                             <h2 className="text-base font-semibold">Basic Details</h2>
-                            <p className="mt-1 text-sm text-black/60">Title, members (optional), date, time and description.</p>
 
                             {/* ✅ Title + Group Members Dropdown Row */}
                             <div className="mt-5 grid gap-4 lg:grid-cols-12">
@@ -590,15 +594,34 @@ export default function CreateEventPage() {
 
                                 <div className="lg:col-span-6">
                                     <label className={labelCls}>
-                                        Start Date <span className="text-red-500">*</span>
+                                        Event Date <span className="text-red-500">*</span>
                                     </label>
-                                    <input
+                                    {/* <input
                                         type="date"
                                         value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
                                         className={inputCls}
                                         required
+                                    /> */}
+                                    <input
+                                        type="date"
+                                        value={startDate}
+                                        min={today} // ✅ disables past dates in calendar
+                                        onChange={(e) => {
+                                            const v = e.target.value;
+
+                                            // ✅ extra safety if user types manually
+                                            if (v && v < today) {
+                                                setStartDate(today);
+                                                return;
+                                            }
+
+                                            setStartDate(v);
+                                        }}
+                                        className={inputCls}
+                                        required
                                     />
+
                                 </div>
 
                                 <div className="lg:col-span-6">
@@ -652,7 +675,7 @@ export default function CreateEventPage() {
 
                             {/* STATE */}
                             <div>
-                                <label className={labelCls}>State *</label>
+                                <label className={labelCls}>State <span className="text-red-500">*</span></label>
                                 <select
                                     className={inputCls}
                                     value={stateId}
@@ -680,7 +703,7 @@ export default function CreateEventPage() {
 
                             {/* CITY */}
                             <div>
-                                <label className={labelCls}>City *</label>
+                                <label className={labelCls}>City <span className="text-red-500">*</span></label>
                                 <select
                                     className={inputCls}
                                     value={cityId}
@@ -747,7 +770,7 @@ export default function CreateEventPage() {
                                     </div>
 
                                     <div>
-                                        <label className={labelCls}>Ticket Count</label>
+                                        <label className={labelCls}>Ticket Count <span className="text-red-500">*</span></label>
                                         <input
                                             type="number"
                                             min={0}
@@ -759,7 +782,7 @@ export default function CreateEventPage() {
                                     </div>
 
                                     <div className="lg:col-span-2">
-                                        <label className={labelCls}>Ticket Info</label>
+                                        <label className={labelCls}>Ticket Info <span className="text-red-500">*</span></label>
                                         <textarea
                                             value={ticketInfo}
                                             onChange={(e) => setTicketInfo(e.target.value)}

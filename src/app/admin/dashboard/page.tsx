@@ -1,6 +1,11 @@
+"use client";
+
 // app/admin/dashboard/page.tsx
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { apiUrl } from "@/config";
 
 type StatItem = {
     label: string;
@@ -11,54 +16,105 @@ type StatItem = {
     icon: ReactNode;
 };
 
+type EventCountResponse = {
+    status?: boolean;
+    message?: string;
+    data?: {
+        today_events?: number;
+        upcoming_events?: number;
+    };
+};
+
 export default function AdminDashboardPage() {
-    // Dummy counts (API later)
-    const counts = {
-        created: 24,
-        upcoming: 7,
-        completed: 17,
+    const API_URL = apiUrl ?? "";
+
+    const getToken = () => {
+        if (typeof window === "undefined") return "";
+        return (
+            localStorage.getItem("token") ||
+            localStorage.getItem("access_token") ||
+            localStorage.getItem("adminToken") ||
+            ""
+        );
     };
 
-    const stats: StatItem[] = [
-        {
-            label: "Created",
-            value: counts.created,
-            sub: "Total shows created",
-            ring: "bg-primary/15 text-primary",
-            accent: "bg-primary",
-            icon: (
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
-                    <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z" />
-                </svg>
-            ),
-        },
-        {
-            label: "Upcoming",
-            value: counts.upcoming,
-            sub: "Scheduled shows",
-            ring: "bg-secondary/20 text-secondary",
-            accent: "bg-secondary",
-            icon: (
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
-                    <path d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2zm13 6H6v12h14V8z" />
-                </svg>
-            ),
-        },
-        {
-            label: "Completed",
-            value: counts.completed,
-            sub: "Finished shows",
-            ring: "bg-emerald-500/15 text-emerald-600",
-            accent: "bg-emerald-500",
-            icon: (
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
-                    <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" />
-                </svg>
-            ),
-        },
-    ];
+    const authConfig = () => {
+        const token = getToken();
+        return {
+            headers: {
+                Accept: "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+        };
+    };
 
-    // Right-side quick stats (show-wise)
+    const [loadingCounts, setLoadingCounts] = useState(false);
+    const [counts, setCounts] = useState({
+        today_events: 0,
+        upcoming_events: 0,
+    });
+
+    useEffect(() => {
+        const fetchCounts = async () => {
+            if (!API_URL) return;
+
+            try {
+                setLoadingCounts(true);
+
+                const res = await axios.post<EventCountResponse>(
+                    `${API_URL}/admin/event-count`,
+                    {},
+                    authConfig()
+                );
+
+                if (!res.data?.status) return;
+                const today = Number(res.data?.data?.today_events ?? 0);
+                const upcoming = Number(res.data?.data?.upcoming_events ?? 0);
+
+                setCounts({ today_events: today, upcoming_events: upcoming });
+            } catch (err) {
+                console.error("event-count error:", err);
+            } finally {
+                setLoadingCounts(false);
+            }
+        };
+
+        fetchCounts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [API_URL]);
+
+    // ✅ ONLY TODAY + UPCOMING (no completed)
+    const stats: StatItem[] = useMemo(
+        () => [
+            {
+                label: "Today Events",
+                value: counts.today_events,
+                sub: "Events happening today",
+                ring: "bg-primary/15 text-primary",
+                accent: "bg-primary",
+                icon: (
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
+                        <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z" />
+                    </svg>
+                ),
+            },
+            {
+                label: "Upcoming Events",
+                value: counts.upcoming_events,
+                sub: "Events scheduled next",
+                ring: "bg-secondary/20 text-secondary",
+                accent: "bg-secondary",
+                icon: (
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
+                        <path d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2zm13 6H6v12h14V8z" />
+                    </svg>
+                ),
+            },
+        ],
+        [counts.today_events, counts.upcoming_events]
+    );
+
+    // Right-side quick stats (still dummy)
     const quickStats = [
         { label: "Total Bookings (Today)", value: 38 },
         { label: "Paid Tickets (Today)", value: 21 },
@@ -66,14 +122,12 @@ export default function AdminDashboardPage() {
         { label: "Group Members", value: 34 },
     ];
 
-    // Table 1: Today Bookings (show-wise)
     const todayBookings = [
         { name: "New Year Musical Night", count: 12 },
         { name: "Standup Comedy Live", count: 7 },
         { name: "Drama Night: The Stage", count: 9 },
     ];
 
-    // Table 2: Today Users Registered (or Ticket Buyers)
     const todayUsers = [
         { name: "Ramesh Patel", count: 2 },
         { name: "Mehul Shah", count: 1 },
@@ -87,7 +141,7 @@ export default function AdminDashboardPage() {
                 <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-col gap-1">
                         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-                        <p className="text-sm text-black/60">Overview of your shows and activity.</p>
+                        {loadingCounts ? <p className="text-xs text-black/50 mt-1">Loading counts...</p> : null}
                     </div>
 
                     <Link
@@ -99,7 +153,7 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Top stats */}
-                <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <section className="mt-6 grid gap-4 sm:grid-cols-2">
                     {stats.map((s) => (
                         <StatCard
                             key={s.label}
@@ -189,21 +243,17 @@ function StatCard({
 }) {
     return (
         <div className="relative overflow-hidden rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
-            {/* Left strip */}
             <span className={`absolute left-0 top-0 h-full w-1.5 ${accent}`} />
-
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <span className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${ring}`}>
                         {icon}
                     </span>
-
                     <div>
                         <p className="text-sm font-semibold text-black">{title}</p>
                         <p className="text-xs text-black/60">{sub}</p>
                     </div>
                 </div>
-
                 <p className="text-3xl font-bold text-black">{value}</p>
             </div>
         </div>
