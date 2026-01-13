@@ -28,7 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </RoleGuard>
             <ToastContainer
                 position="top-right"
-                autoClose={2500}
+                autoClose={3000}
                 hideProgressBar={false}
                 newestOnTop
                 closeOnClick
