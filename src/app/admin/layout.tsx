@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AdminFooter from "../components/AdminFooter";
 import AdminHeader from "../components/AdminHeader";
 import RoleGuard from "../components/RoleGuard";
+import { ToastContainer } from "react-toastify";
 import { usePathname } from "next/navigation";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -29,6 +30,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <main>{children}</main>
                 {!hidelayout && hasToken && <AdminFooter />}
             </RoleGuard>
+            <ToastContainer
+                position="top-right"
+                autoClose={2500}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                pauseOnHover
+                draggable
+            />
         </>
     );
 }
