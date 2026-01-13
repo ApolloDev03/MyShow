@@ -695,7 +695,7 @@ export default function AdminEditProfilePage() {
                 email: next.email.trim(),
             };
 
-            const res = await api.put<ApiResponse>("/admin/profile/update", payload, {
+            const res = await api.post<ApiResponse>("/admin/profile/update", payload, {
                 validateStatus: () => true,
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -790,9 +790,9 @@ export default function AdminEditProfilePage() {
                 <div className="mb-4">
                     <Link
                         href="/admin/profile"
-                        className="inline-flex items-center gap-2 rounded-xl border border-black/10 bg-white px-4 py-2 text-sm font-semibold hover:bg-black/5"
+                        className="inline-flex text-black  items-center gap-2 rounded-xl border border-black/10 bg-white px-4 py-2 text-sm font-semibold hover:bg-black/5"
                     >
-                        <FiArrowLeft className="text-base" />
+                        <FiArrowLeft className="text-black " />
                         Back to Profile
                     </Link>
                 </div>

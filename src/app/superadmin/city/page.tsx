@@ -526,9 +526,7 @@ export default function CityMasterPage() {
                             </button>
                         </div>
 
-                        <div className="px-5 pb-5 text-xs text-black/50">
-                            Token header used (if token exists): <span className="font-medium">Authorization: Bearer {"<superadminToken>"}</span>
-                        </div>
+                        
                     </div>
                 </div>
             ) : null}

@@ -345,9 +345,7 @@ export default function GroupsMasterPage() {
                         </table>
                     </div>
 
-                    <div className="mt-3 text-xs text-slate-500">
-                        Note: Members count appears after you open a group once (because list API doesn’t return total_members).
-                    </div>
+                    
                 </div>
 
                 {/* View Modal */}
