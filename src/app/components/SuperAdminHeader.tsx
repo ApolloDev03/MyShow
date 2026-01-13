@@ -420,7 +420,6 @@ export default function SuperAdminHeader() {
       active ? "bg-primary/10 text-primary" : "text-black/70 hover:bg-black/5 hover:text-black",
     ].join(" ");
 
-  // ✅ API logout call
   const logout = async () => {
     if (logoutLoading) return;
 
@@ -431,34 +430,33 @@ export default function SuperAdminHeader() {
 
     const token = getToken();
 
+    router.replace("/superadmin/logout"); // or "/superadmin/login"
+
     try {
-      const res = await api.post<LogoutResponse>(
+      await api.post(
         "/v1/logout",
+        {}, // ✅ body
         {
           validateStatus: () => true,
           headers: token
             ? {
-              Authorization: `Bearer ${token}`, // most common
-              token, // extra safety if backend reads token header
+              Authorization: `Bearer ${token}`,
+              token, // optional if your backend reads this
             }
             : undefined,
         }
       );
-
-      // even if API fails, we still clear local session (safe logout)
-      if (!isSuccess(res.data)) {
-        // optional: console.warn(res.data?.message || "Logout failed");
-      }
     } catch {
-      // ignore network errors; still clear local session
+      // ignore
     } finally {
       clearAuthStorage();
       setLogoutLoading(false);
 
-      // ✅ go to superadmin login page (your route is /user/login)
-      router.push("/superadmin/login");
+      // ✅ after clearing, go to login
+      router.replace("/superadmin/logout");
     }
   };
+
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/10 bg-white/85 backdrop-blur">

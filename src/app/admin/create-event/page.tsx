@@ -35,9 +35,20 @@ type GroupMember = {
     created_at: string;
 };
 
+function getTodayLocalYYYYMMDD() {
+    // local date (avoids UTC off-by-1)
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 10);
+}
+
 export default function CreateEventPage() {
-    // Banner (single)
     const router = useRouter();
+
+    // ✅ today for date min
+    const today = useMemo(() => getTodayLocalYYYYMMDD(), []);
+
+    // Banner (single)
     const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [bannerPreview, setBannerPreview] = useState<string>("");
 
@@ -133,6 +144,10 @@ export default function CreateEventPage() {
     // ✅ Group members OPTIONAL now (no validation)
     const requiredOk = useMemo(() => {
         if (!title || !startDate || !time || !description) return false;
+
+        // ✅ prevent past date
+        if (startDate < today) return false;
+
         if (!address || !stateId || !cityId) return false;
 
         if (isPaid) {
@@ -140,18 +155,7 @@ export default function CreateEventPage() {
             if (!paidMode) return false;
         }
         return true;
-    }, [
-        title,
-        startDate,
-        time,
-        description,
-        address,
-        stateId,
-        cityId,
-        isPaid,
-        ticketPrice,
-        paidMode,
-    ]);
+    }, [title, startDate, time, description, address, stateId, cityId, isPaid, ticketPrice, paidMode, today]);
 
     const onSelectShowImages = (files: FileList | null) => {
         if (!files) return;
@@ -192,14 +196,13 @@ export default function CreateEventPage() {
             }
         };
 
-        // reset city when state changes
         setCityId("");
         setCities([]);
 
         if (stateId) fetchCities();
     }, [stateId]);
 
-    // ✅ Fetch Group Members (POST with Token) - fixed axios call
+    // ✅ Fetch Group Members
     useEffect(() => {
         const fetchGroupMembers = async () => {
             try {
@@ -222,11 +225,8 @@ export default function CreateEventPage() {
                     }
                 );
 
-                if (res.data?.status) {
-                    setGroupMembers(res.data.data || []);
-                } else {
-                    setGroupMembers([]);
-                }
+                if (res.data?.status) setGroupMembers(res.data.data || []);
+                else setGroupMembers([]);
             } catch (err) {
                 console.error("Group members fetch error:", err);
                 setGroupMembers([]);
@@ -261,23 +261,25 @@ export default function CreateEventPage() {
         setError("");
 
         if (!requiredOk) {
-            setError("Please fill all required fields.");
+            if (startDate && startDate < today) {
+                toast.error("Past dates are not allowed. Please select today or a future date.");
+            } else {
+                setError("Please fill all required fields.");
+            }
             return;
         }
 
         try {
             const formData = new FormData();
 
-            // ✅ EXACT API KEYS (store)
             formData.append("title", title);
             formData.append("event_date", startDate);
             formData.append("event_time", time);
             formData.append("description", description);
             formData.append("state_id", String(stateId));
             formData.append("city_id", String(cityId));
-            // map your address to "venue"
             formData.append("venue", address);
-            // pricing_type: 1=free, 2=paid (adjust if backend differs)
+
             const pricing_type = paymentType === "free" ? "1" : "2";
             formData.append("pricing_type", pricing_type);
             formData.append("price", ticketPrice);
@@ -287,11 +289,9 @@ export default function CreateEventPage() {
                 formData.append("payment_mode", paidMode === "online" ? "1" : "2");
             }
 
-            // ✅ files
             if (bannerFile) formData.append("banner", bannerFile);
             showFiles.forEach((file) => formData.append("photos[]", file));
 
-            // ✅ group members OPTIONAL (only append if selected)
             if (selectedMemberIds.length > 0) {
                 selectedMemberIds.forEach((id) => formData.append("group_members[]", String(id)));
             }
@@ -309,7 +309,6 @@ export default function CreateEventPage() {
                 toast.success(`Event created successfully`);
                 router.push("/admin/events");
 
-                // reset form
                 setTitle("");
                 setStartDate("");
                 setTime("");
@@ -325,10 +324,10 @@ export default function CreateEventPage() {
                 setMemberSearch("");
                 setMembersOpen(false);
             } else {
-                toast.error(res.data?.message);
+                toast.error(res.data?.message || "Failed to create event");
             }
         } catch (err: any) {
-            toast.error(err?.response?.data?.message);
+            toast.error(err?.response?.data?.message || "Something went wrong");
         }
     };
 
@@ -355,7 +354,6 @@ export default function CreateEventPage() {
                 </div>
 
                 <form onSubmit={onSubmit} className="mt-6 space-y-6">
-                    {/* Row 1: Images + Basic Details */}
                     <section className="grid gap-6 lg:grid-cols-12">
                         {/* Images card */}
                         <div className="lg:col-span-5 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
@@ -386,7 +384,6 @@ export default function CreateEventPage() {
                                         </div>
                                     ) : (
                                         <div className="overflow-hidden rounded-xl border border-black/10">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img src={bannerPreview} alt="Banner preview" className="h-44 w-full object-cover" />
                                         </div>
                                     )}
@@ -403,7 +400,7 @@ export default function CreateEventPage() {
                                 ) : null}
                             </div>
 
-                            {/* Show Images (multiple) */}
+                            {/* Show Images */}
                             <div className="mt-6">
                                 <div className="flex items-center justify-between">
                                     <p className={labelCls}>Show Images (Multiple)</p>
@@ -432,7 +429,6 @@ export default function CreateEventPage() {
                                         <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
                                             {showPreviews.map((src, i) => (
                                                 <div key={src} className="relative overflow-hidden rounded-xl border border-black/10 bg-white">
-                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     <img src={src} alt={`Show image ${i + 1}`} className="h-24 w-full object-cover" />
                                                     <button
                                                         type="button"
@@ -454,14 +450,11 @@ export default function CreateEventPage() {
                             </div>
                         </div>
 
-                        {/* Basic details card */}
+                        {/* Basic details */}
                         <div className="lg:col-span-7 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
                             <h2 className="text-base font-semibold">Basic Details</h2>
-                            <p className="mt-1 text-sm text-black/60">Title, members (optional), date, time and description.</p>
 
-                            {/* ✅ Title + Group Members Dropdown Row */}
                             <div className="mt-5 grid gap-4 lg:grid-cols-12">
-                                {/* Title */}
                                 <div className="lg:col-span-7">
                                     <label className={labelCls}>
                                         Title <span className="text-red-500">*</span>
@@ -475,7 +468,7 @@ export default function CreateEventPage() {
                                     />
                                 </div>
 
-                                {/* ✅ Group Members dropdown (OPTIONAL) */}
+                                {/* Group Members (Optional) */}
                                 <div className="lg:col-span-5 relative" ref={membersBoxRef}>
                                     <label className={labelCls}>
                                         Group Members <span className="text-xs text-black/50">(Optional)</span>
@@ -554,41 +547,27 @@ export default function CreateEventPage() {
                                             </div>
                                         </div>
                                     ) : null}
-
-                                    {/* Selected chips (optional) */}
-                                    {selectedMemberIds.length > 0 ? (
-                                        <div className="mt-3 flex flex-wrap gap-2">
-                                            {selectedMemberIds.map((id) => {
-                                                const mem = groupMembers.find((x) => x.id === id);
-                                                if (!mem) return null;
-                                                return (
-                                                    <span
-                                                        key={id}
-                                                        className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 text-sm"
-                                                    >
-                                                        {mem.name}
-                                                        <button
-                                                            type="button"
-                                                            className="text-black/60 hover:text-black"
-                                                            onClick={() => setSelectedMemberIds((prev) => prev.filter((x) => x !== id))}
-                                                        >
-                                                            ✕
-                                                        </button>
-                                                    </span>
-                                                );
-                                            })}
-                                        </div>
-                                    ) : null}
                                 </div>
 
                                 <div className="lg:col-span-6">
                                     <label className={labelCls}>
-                                        Start Date <span className="text-red-500">*</span>
+                                        Event Date <span className="text-red-500">*</span>
                                     </label>
+
+                                    {/* ✅ disable past dates */}
                                     <input
                                         type="date"
                                         value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
+                                        min={today}
+                                        onChange={(e) => {
+                                            const v = e.target.value;
+                                            if (v && v < today) {
+                                                toast.error("Past dates are not allowed.");
+                                                setStartDate(today);
+                                                return;
+                                            }
+                                            setStartDate(v);
+                                        }}
                                         className={inputCls}
                                         required
                                     />
@@ -624,10 +603,9 @@ export default function CreateEventPage() {
                         </div>
                     </section>
 
-                    {/* Location card */}
+                    {/* Location */}
                     <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
                         <h2 className="text-base font-semibold">Location</h2>
-                        <p className="mt-1 text-sm text-black/60">Address, state and city.</p>
 
                         <div className="mt-5 grid gap-4 lg:grid-cols-2">
                             <div className="lg:col-span-2">
@@ -643,9 +621,8 @@ export default function CreateEventPage() {
                                 />
                             </div>
 
-                            {/* STATE */}
                             <div>
-                                <label className={labelCls}>State *</label>
+                                <label className={labelCls}>State  <span className="text-red-500">*</span></label>
                                 <select
                                     className={inputCls}
                                     value={stateId}
@@ -671,9 +648,8 @@ export default function CreateEventPage() {
                                 </select>
                             </div>
 
-                            {/* CITY */}
                             <div>
-                                <label className={labelCls}>City *</label>
+                                <label className={labelCls}>City  <span className="text-red-500">*</span></label>
                                 <select
                                     className={inputCls}
                                     value={cityId}
@@ -694,10 +670,9 @@ export default function CreateEventPage() {
                         </div>
                     </section>
 
-                    {/* Pricing card */}
+                    {/* Pricing */}
                     <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
                         <h2 className="text-base font-semibold">Pricing</h2>
-                        <p className="mt-1 text-sm text-black/60">Select Free / Paid.</p>
 
                         <div className="mt-4 flex flex-wrap gap-3">
                             <label className="flex items-center gap-2 rounded-xl border border-black/15 bg-white px-3 py-2 text-sm">
@@ -732,7 +707,14 @@ export default function CreateEventPage() {
                                             type="number"
                                             min={0}
                                             value={ticketPrice}
-                                            onChange={(e) => setTicketPrice(e.target.value)}
+                                            onChange={(e) => {
+                                                const onlyDigits = e.target.value.replace(/\D/g, "");
+                                                setTicketPrice(onlyDigits);
+                                            }}
+                                            onKeyDown={(e) => {
+                                                // block e/E/+/-/. (common in number inputs)
+                                                if (["e", "E", "+", "-", "."].includes(e.key)) e.preventDefault();
+                                            }}
                                             placeholder="Enter ticket price"
                                             className={inputCls}
                                             required
@@ -740,19 +722,25 @@ export default function CreateEventPage() {
                                     </div>
 
                                     <div>
-                                        <label className={labelCls}>Ticket Count</label>
+                                        <label className={labelCls}>Ticket Count <span className="text-red-500">*</span></label>
                                         <input
                                             type="number"
                                             min={0}
                                             value={ticketCount}
-                                            onChange={(e) => setTicketCount(e.target.value)}
+                                            onChange={(e) => {
+                                                const onlyDigits = e.target.value.replace(/\D/g, "");
+                                                setTicketCount(onlyDigits);
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (["e", "E", "+", "-", "."].includes(e.key)) e.preventDefault();
+                                            }}
                                             placeholder="Total available tickets (optional)"
                                             className={inputCls}
                                         />
                                     </div>
 
                                     <div className="lg:col-span-2">
-                                        <label className={labelCls}>Ticket Info</label>
+                                        <label className={labelCls}>Ticket Info <span className="text-red-500">*</span></label>
                                         <textarea
                                             value={ticketInfo}
                                             onChange={(e) => setTicketInfo(e.target.value)}
@@ -789,14 +777,11 @@ export default function CreateEventPage() {
                                             </label>
                                         </div>
                                     </div>
-
-
                                 </div>
                             </div>
                         )}
                     </section>
 
-                    {/* Error + Actions */}
                     {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">

@@ -8,6 +8,7 @@ import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import { FiEye, FiEyeOff, FiLock, FiMail } from "react-icons/fi";
 import { apiUrl } from "@/config";
+import { useAuth } from "@/app/context/AuthProvider";
 
 type LoginResponse = {
     status?: string | boolean | number;
@@ -56,14 +57,13 @@ function getApiErrorMessage(err: unknown) {
 
 export default function SuperAdminLoginPage() {
     const router = useRouter();
-
+    const auth = useAuth();
     const [mobile, setMobile] = useState("");
     const [password, setPassword] = useState("");
 
     const [showPass, setShowPass] = useState(false);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -75,36 +75,27 @@ export default function SuperAdminLoginPage() {
         try {
             const res = await api.post<LoginResponse>(
                 "/v1/login",
-                {
-                    mobile: mobile.trim(),
-                    password,
-                },
-                {
-                    validateStatus: () => true,
-                }
+                { mobile: mobile.trim(), password },
+                { validateStatus: () => true }
             );
 
             const data = res.data;
             const msg = pickMessage(data);
 
             if (res.status >= 200 && res.status < 300 && isSuccess(data) && data?.data?.access_token) {
-                // ✅ store token + user
-                try {
-                    localStorage.setItem("superadminToken", data.data.access_token);
-                    localStorage.setItem("role", "superadmin");
-                    localStorage.setItem(
-                        "user",
-                        JSON.stringify({
-                            id: data.data.id,
-                            name: data.data.name,
-                            email: data.data.email,
-                            mobile: data.data.mobile,
-                            role: "superadmin",
-                        })
-                    );
-                } catch { }
+                // ✅ IMPORTANT: update AuthProvider + localStorage via auth.login
+                auth.login({
+                    role: "superadmin",
+                    token: data.data.access_token,
+                    user: {
+                        id: String(data.data.id),
+                        name: data.data.name,
+                        email: data.data.email,
+                    },
+                });
 
-                router.push("/superadmin/dashboard");
+                // ✅ use replace so user can't go back to login
+                router.replace("/superadmin/dashboard");
                 return;
             }
 
